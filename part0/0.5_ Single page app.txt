@@ -1,0 +1,13 @@
+title 0.5: Single page app
+
+browser->server: HTTP GET https://fullstack-exampleapp.herokuapp.com/notes
+server->browser: html code
+browser->server: https://fullstack-exampleapp.herokuapp.com/main.css
+server->browser: main.css
+browser->server: https://fullstack-exampleapp.herokuapp.com/spa.js
+server->browser: spa.js
+note over browser: ajax request to load data
+browser->server: https://fullstack-exampleapp.herokuapp.com/data.json
+server->browser: data.json
+note over browser: compile data to display
+

@@ -1,0 +1,7 @@
+title 0.6: New note (spa)
+
+note over browser: updates view via javascript
+browser->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+note over server: receives, save note data,\nand send feedback
+server->browser: message: "note created"
+
