@@ -13,10 +13,14 @@ const Content = (props) => {
   return (
     <div>
       {parts.map(p => ( // map returns an array
-        <p key={p.id}>{p.name} {p.exercises}</p>
+        <Part key={p.id} part={p} />
       ))}
     </div>
   )
+}
+
+const Part = (props) => {
+  return (<p>{props.part.name} {props.part.exercises}</p>)
 }
 
 const Total = (props) => {
