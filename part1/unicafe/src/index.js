@@ -27,14 +27,16 @@ const Statistics = ({ votes }) => {
     <div>
       <h2>statistics</h2>
       {(total > 0) ?
-        <div>
-          <Statistic text="good" value={votes.good} />
-          <Statistic text="neutral" value={votes.neutral} />
-          <Statistic text="bad" value={votes.bad} />
-          <Statistic text="all" value={total} />
-          <Statistic text="average" value={average} />
-          <Statistic text="positive" value={positive} />
-        </div>
+        <table>
+          <tbody>
+            <Statistic text="good" value={votes.good} />
+            <Statistic text="neutral" value={votes.neutral} />
+            <Statistic text="bad" value={votes.bad} />
+            <Statistic text="all" value={total} />
+            <Statistic text="average" value={average} />
+            <Statistic text="positive" value={positive} />
+          </tbody>
+        </table>
       :
         <div>No feedback is given</div>
       }
@@ -44,7 +46,14 @@ const Statistics = ({ votes }) => {
 
 const Statistic = (props) => {
   return (
-    <p>{props.text} {props.value}</p>
+    <tr>
+      <td>
+        {props.text}
+      </td>
+      <td>
+        {props.value}
+      </td>
+    </tr>
   )
 }
 
