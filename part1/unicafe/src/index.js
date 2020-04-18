@@ -20,8 +20,8 @@ const Statistics = ({ votes }) => {
     ? (votes.good - votes.bad) / total
     : 0;
   const positive = (total > 0)
-    ? votes.good / total
-    : 0;
+    ? `${votes.good * 100 / total}%`
+    : `${0}%`;
 
   return (
     <div>
