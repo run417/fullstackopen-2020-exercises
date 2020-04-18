@@ -13,13 +13,24 @@ const Feedback = (props) => {
   )
 }
 
-const Statistics = (props) => {
+const Statistics = ({ votes }) => {
+  // average and positive calculations may not be right
+  const total = Object.values(votes).reduce((t, i) => i + t,);
+  const average = (total > 0)
+    ? (votes.good - votes.bad) / total
+    : 0;
+  const positive = (total > 0)
+    ? votes.good / total
+    : 0;
   return (
     <div>
       <h2>statistics</h2>
-      <p>good {props.votes.good}</p>
-      <p>neutral {props.votes.neutral}</p>
-      <p>bad {props.votes.bad}</p>
+      <p>good {votes.good}</p>
+      <p>neutral {votes.neutral}</p>
+      <p>bad {votes.bad}</p>
+      <p>all {total}</p>
+      <p>average {average}</p>
+      <p>positive {positive}</p>
     </div>
   )
 }
