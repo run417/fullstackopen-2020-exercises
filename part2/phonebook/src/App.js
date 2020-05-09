@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import phonebookService from './services/phonebook'
 
+const Notification = ({ message }) => {
+    if (message === null) return null;
+    return(
+        <div className={`${message.type}Message`}>{message.text}</div>
+    )
+}
+
 const Entry = (props) => {
     const {name, number, id} = props.entry;
     const deleteEntry = props.deleteEntry;
@@ -51,6 +58,7 @@ const App = () => {
     const [newNumber, setNewNumber] = useState('');
     const [filtered, setFiltered] = useState([]);
     const [filterCriteria, setFilterCriteria] = useState('');
+    const [message, setMessage] = useState(null);
 
     useEffect(() => {
         phonebookService
@@ -91,6 +99,15 @@ const App = () => {
                 .then(returnedEntry => {
                     console.log(returnedEntry);
                     setPersons(persons.concat(returnedEntry))
+                    setMessage(
+                        {
+                            text: `Added ${returnedEntry.name}`,
+                            type: 'success',
+                        }
+                    )
+                    setTimeout(() => {
+                        setMessage(null)
+                    }, 5000)
                 })
 
             if (filterCriteria.length > 0) {
@@ -139,7 +156,13 @@ const App = () => {
                     }
                 })
                 .catch(error =>{
-                    alert(`the person - ${entry.name} is already deleted from server`)
+                    setMessage({
+                        text: `the person - ${entry.name} is already deleted from server`,
+                        type: 'error'
+                    });
+                    setTimeout(() => {
+                        setMessage(null)
+                    }, 5000);
                 })
         }
         console.log(entry)
@@ -154,6 +177,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={message} />
             <div>filter shown with <input onChange={onChangeFilter} value={filterCriteria} /></div>
 
             <h2>add a new</h2>
