@@ -93,7 +93,6 @@ const errorHandler = (error, request, response, next) => {
         return response.status(400).send({ error: 'malformatted id' });
     // eslint-disable-next-line no-else-return
     } else if (error.name === 'ValidationError') {
-        console.log(error);
         return response.status(400).send({ error: error.message });
     }
     next(error);
