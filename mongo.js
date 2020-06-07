@@ -21,6 +21,13 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema);
 
+// Person.find({}, 'name').then((result) => {
+//     const name = 'anna';
+//     let isUnique = !result.some(r => r.name.toLowerCase() === name.toLowerCase())
+//     console.log(isUnique);
+//     mongoose.connection.close();
+// });
+
 if (isInsert) {
     const name = process.argv[3];
     const number = process.argv[4];

@@ -27,29 +27,6 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-// let persons = [
-//     {
-//         name: 'Arto Hellas',
-//         number: '040-123456',
-//         id: 1,
-//     },
-//     {
-//         name: 'Ada Lovelace',
-//         number: '39-44-5323523',
-//         id: 2,
-//     },
-//     {
-//         name: 'Dan Abramov',
-//         number: '12-43-234345',
-//         id: 3,
-//     },
-//     {
-//         name: 'Mary Poppendieck',
-//         number: '39-23-6423122',
-//         id: 4,
-//     },
-// ];
-
 app.get('/', (request, response) => {
     response.send('<div>Phonebook backend</div>');
 });
@@ -61,13 +38,13 @@ app.get('/api/persons', (request, response) => {
 });
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id;
+    const { id } = request.params;
     Person.findById(id).then((person) => { response.json(person); });
 });
 
 app.get('/info', async (request, response, next) => {
     let count = await Person.find({}, 'name')
-        .then((result) => { return result.length; })
+        .then(result => result.length)
         .catch(error => next(error));
     const date = new Date();
     response.send(`<div><p>Phonebook has info on ${count} people</p><p>${date}</p></div>`);
@@ -75,8 +52,6 @@ app.get('/info', async (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
     const { id } = request.params;
-    // const length = persons.length;
-    // persons = persons.filter(p => p.id !== id);
     Person.findByIdAndRemove(id)
         .then(result => response.status(204).end())
         .catch(error => next(error));
@@ -88,58 +63,45 @@ app.put('/api/persons/:id', (request, response, next) => {
         name: body.name,
         number: body.number,
     };
+    console.log(person);
 
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(
+        request.params.id,
+        person,
+        { new: true, runValidators: true, context: 'query' },
+    )
         .then(updatedNote => response.json(updatedNote))
         .catch(error => next(error));
 });
 
-const generateId = () => {
-    const min = Math.ceil(10);
-    const max = Math.floor(10000);
-    return Math.floor(Math.random() * (max - min)) + min;
-};
+app.post('/api/persons', (request, response, next) => {
+    const { body } = request;
 
-const isNameUnique = (name) => {
-    // const found = persons.find(p => p.name === name);
-    // return found === undefined;
-    return true;
-};
-
-app.post('/api/persons', (request, response) => {
-    const body = request.body;
-    if (!body.name) {
-        return response.status(400).json({
-            error: 'a name is required',
-        });
-    } else if (!isNameUnique(body.name)) {
-        return response.status(400).json({
-            error: 'name must be unique',
-        });
-    }
-    if (!body.number) {
-        return response.status(400).json({
-            error: 'a number is required',
-        });
-    }
     const person = new Person({
         name: body.name,
         number: body.number,
     });
-    person.save().then((savedPerson) => { response.json(savedPerson); });
+
+    person.save()
+        .then((savedPerson) => { response.json(savedPerson); })
+        .catch(error => next(error));
 });
 
 const errorHandler = (error, request, response, next) => {
     console.log('Error: ', error.message);
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' });
+    // eslint-disable-next-line no-else-return
+    } else if (error.name === 'ValidationError') {
+        console.log(error);
+        return response.status(400).send({ error: error.message });
     }
     next(error);
 };
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
+const { PORT } = process.env;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
