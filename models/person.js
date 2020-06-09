@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-param-reassign */
 const mongoose = require('mongoose');
 
 const uniqueValidator = require('mongoose-unique-validator');
@@ -8,13 +10,10 @@ mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
 console.log('connecting to MongoDB');
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then((result) => {
-        console.log('connected to MongoDB');
-    })
-    .catch((error) => {
-        console.log('error connecting to MongoDB:', error.message);
-    });
+mongoose
+    .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then((result) => console.log('connected to MongoDB:', result.connection.name))
+    .catch((error) => console.log('error connecting to MongoDB:', error.message));
 
 const personSchema = new mongoose.Schema({
     name: {
