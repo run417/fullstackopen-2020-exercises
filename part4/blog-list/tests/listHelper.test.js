@@ -1,4 +1,4 @@
-const listHelper = require('./utils/for_testing');
+const listHelper = require('../utils/for_testing');
 
 const emptyBlogList = [];
 
