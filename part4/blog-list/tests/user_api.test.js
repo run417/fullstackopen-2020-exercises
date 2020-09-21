@@ -68,6 +68,7 @@ describe('when creating users', () => {
         const usersAtEnd = await helper.usersInDb();
         expect(usersAtEnd).toHaveLength(usersAtStart.length);
     });
+
     test('fails if username is less than 3 characters', async () => {
         const usersAtStart = await helper.usersInDb();
         const newUser = { username: 'ds', name: 'Himaya', password: '5#fdcY0?1!@' };
@@ -81,6 +82,7 @@ describe('when creating users', () => {
         const usersAtEnd = await helper.usersInDb();
         expect(usersAtEnd).toHaveLength(usersAtStart.length);
     });
+
     test('fails if password is undefined or less than 3 characters', async () => {
         const usersAtStart = await helper.usersInDb();
         const newUser = { username: 'newuser', name: 'greg', password: 'fd' };
