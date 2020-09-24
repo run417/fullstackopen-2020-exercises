@@ -53,8 +53,13 @@ blogRouter.put('/:id', async (request, response) => {
 });
 
 blogRouter.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndDelete(request.params.id);
-    response.status(204).end();
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    const blog = await Blog.findById(request.params.id);
+    if (decodedToken.id === blog.user.toString()) {
+        await Blog.findByIdAndDelete(request.params.id);
+        return response.status(204).end();
+    }
+    response.status(401).json({ error: 'action not authorizated' });
 });
 
 module.exports = blogRouter;
