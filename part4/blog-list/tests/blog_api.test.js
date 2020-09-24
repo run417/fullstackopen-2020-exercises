@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const app = require('../app');
 const helper = require('./test_helper');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 
 const api = supertest(app);
 
@@ -60,6 +63,18 @@ describe('when there are blogs in the db', () => {
 });
 
 describe('when creating a new blog', () => {
+    let token = '';
+    beforeAll(async () => {
+        // delete users
+        await User.deleteMany({});
+        const passwordHash = await bcrypt.hash('secret', 10);
+        // create user
+        const user = new User({ username: 'root', name: 'admin', passwordHash });
+        const savedUser = await user.save();
+        // login user and get authentication token
+        const userForToken = { username: savedUser.username, id: savedUser._id };
+        token = jwt.sign(userForToken, process.env.SECRET);
+    });
     beforeEach(async () => {
         await Blog.deleteMany({});
         // eslint-disable-next-line no-restricted-syntax
@@ -78,9 +93,9 @@ describe('when creating a new blog', () => {
             url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
             likes: 10,
         };
-
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/);
@@ -100,6 +115,7 @@ describe('when creating a new blog', () => {
         expect(newBlogMissingLikes.likes).toBeUndefined();
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlogMissingLikes)
             .expect(201)
             .expect((res) => {
@@ -113,29 +129,58 @@ describe('when creating a new blog', () => {
             author: 'Robert C. Martin',
             likes: 3,
         };
-        await api.post('/api/blogs').send(newBlogMissingTitleAndUrl).expect(400);
+        await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newBlogMissingTitleAndUrl)
+            .expect(400);
+    });
+
+    test('fails with status 401 Unauthorized when authentication token is missing', async () => {
+        const newBlog = {
+            title: 'First class tests',
+            author: 'Robert C. Martin',
+            url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+            likes: 10,
+        };
+
+        await api.post('/api/blogs').send(newBlog).expect(401);
     });
 });
 
 describe('when deleting a blog', () => {
+    let token = '';
+    let blog = '';
     beforeEach(async () => {
+        // delete blogs
         await Blog.deleteMany({});
-        // eslint-disable-next-line no-restricted-syntax
-        // for (let blog of helper.initialBlogs) {
-        //     let blogObject = new Blog(blog);
-        //     await blogObject.save();
-        // }
-        const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
-        const promiseArray = blogObjects.map((blog) => blog.save());
-        await Promise.all(promiseArray);
+        // delete users
+        await User.deleteMany({});
+        // create user
+        const passwordHash = await bcrypt.hash('secret', 10);
+        const user = new User({ username: 'root', name: 'admin', passwordHash });
+        const savedUser = await user.save();
+        // get authentication token
+        const userForToken = { username: savedUser.username, id: savedUser._id };
+        token = jwt.sign(userForToken, process.env.SECRET);
+        // create blog
+        blog = new Blog({
+            title: 'a blog for deletion',
+            author: 'admin',
+            url: 'example.com',
+            likes: 3,
+            user: savedUser._id,
+        });
+        await blog.save();
+        savedUser.blogs = savedUser.blogs.concat(blog.id);
+        await savedUser.save();
     });
 
-    test('suceeds 204 with valid an valid id', async () => {
-        const blogs = await helper.blogsInDb();
-        const index = Math.floor(Math.random() * (blogs.length - 0) + 0);
-        const selectedBlogId = blogs[index].id;
-
-        await api.delete(`/api/blogs/${selectedBlogId}`).expect(204);
+    test('succeeds 204 with valid an valid id', async () => {
+        await api
+            .delete(`/api/blogs/${blog.id}`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(204);
     });
 });
 
