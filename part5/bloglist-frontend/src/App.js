@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Blog from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import './App.css';
+
+const Notification = ({ notification }) => {
+    if (notification === null) return notification;
+    return (
+        <div className={`${notification.type}-notification`}>
+            {notification.message}
+        </div>
+    );
+};
 
 const App = () => {
     const [blogs, setBlogs] = useState([]);
@@ -11,6 +21,7 @@ const App = () => {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [url, setUrl] = useState('');
+    const [notification, setNotification] = useState(null);
 
     useEffect(() => {
         blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -27,6 +38,11 @@ const App = () => {
         }
     }, []);
 
+    const notify = (notification) => {
+        setNotification(notification);
+        setTimeout(() => setNotification(null), 5000);
+    };
+
     const addBlog = async (event) => {
         event.preventDefault();
         try {
@@ -35,8 +51,12 @@ const App = () => {
             setTitle('');
             setAuthor('');
             setUrl('');
+            notify({
+                message: `a new blog ${savedBlog.title} added`,
+                type: 'success',
+            });
         } catch (exception) {
-            alert(exception.response.data.error);
+            notify({ message: exception.response.data.error, type: 'error' });
         }
     };
 
@@ -49,9 +69,9 @@ const App = () => {
             blogService.setToken(user.token);
             setUsername('');
             setPassword('');
+            notify({ message: 'Login successful', type: 'success' });
         } catch (exception) {
-            console.dir(exception.response.data.error);
-            alert('Wrong crendentials');
+            notify({ message: exception.response.data.error, type: 'error' });
         }
     };
 
@@ -64,6 +84,7 @@ const App = () => {
     const loginForm = () => (
         <form onSubmit={handleLogin}>
             <h2>login</h2>
+            <Notification notification={notification} />
             <div>
                 username:
                 <input
@@ -138,6 +159,7 @@ const App = () => {
             ) : (
                 <div>
                     <h2>blogs</h2>
+                    <Notification notification={notification} />
                     <p>
                         {user.name} is logged in{' '}
                         <button onClick={handleLogout}>logout</button>
