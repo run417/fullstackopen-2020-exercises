@@ -4,9 +4,9 @@ const BlogForm = ({ addBlog }) => {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [url, setUrl] = useState('');
-    const saveBlog = async (event) => {
+    const saveBlog = (event) => {
         event.preventDefault();
-        await addBlog({ title, author, url });
+        addBlog({ title, author, url });
         setTitle('');
         setAuthor('');
         setUrl('');

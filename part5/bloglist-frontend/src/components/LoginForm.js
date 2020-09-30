@@ -4,9 +4,9 @@ const LoginForm = ({ logInUser }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = async (event) => {
+    const handleLogin = (event) => {
         event.preventDefault();
-        await logInUser({ username, password });
+        logInUser({ username, password });
         setUsername('');
         setPassword('');
     };
