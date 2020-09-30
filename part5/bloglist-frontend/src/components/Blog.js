@@ -8,7 +8,7 @@ const Blog = ({ blog, updateBlogLikes }) => {
     };
 
     const handleLikes = () => {
-        blog = { ...blog, likes: (blog.likes += 1) };
+        blog.likes += 1;
         updateBlogLikes(blog);
     };
 
