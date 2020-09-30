@@ -49,6 +49,23 @@ const App = () => {
         }
     };
 
+    const updateBlogLikes = async (blogObject) => {
+        try {
+            const updatedBlog = await blogService.update(blogObject);
+            setBlogs(
+                blogs.map((blog) =>
+                    blog.id === updatedBlog.id ? updatedBlog : blog
+                )
+            );
+            notify({
+                message: `${user.name} liked ${updatedBlog.title}`,
+                type: 'success',
+            });
+        } catch (exception) {
+            console.log(exception);
+        }
+    };
+
     const handleLogin = async (credentials) => {
         try {
             const user = await loginService.login(credentials);
@@ -67,13 +84,19 @@ const App = () => {
         blogService.setToken(null);
     };
 
-    const loginForm = () => <LoginForm logInUser={handleLogin} />;
+    const loginForm = () => {
+        return <LoginForm logInUser={handleLogin} />;
+    };
 
     const blogList = () => (
         <div>
             <h2>list</h2>
             {blogs.map((blog) => (
-                <Blog key={blog.id} blog={blog} />
+                <Blog
+                    key={blog.id}
+                    blog={blog}
+                    updateBlogLikes={updateBlogLikes}
+                />
             ))}
         </div>
     );

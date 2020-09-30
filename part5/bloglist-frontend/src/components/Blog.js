@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import Toggleable from './Toggleable';
 
-const BlogDetails = ({ blog }) => <div>{blog.url}</div>;
-
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlogLikes }) => {
     const [visible, setVisible] = useState(false);
 
     const toggleVisibility = () => {
         setVisible(!visible);
+    };
+
+    const handleLikes = () => {
+        blog = { ...blog, likes: (blog.likes += 1) };
+        updateBlogLikes(blog);
     };
 
     const blogStyle = {
@@ -35,7 +37,8 @@ const Blog = ({ blog }) => {
                 </p>
                 <p>{blog.url}</p>
                 <p>
-                    likes {blog.likes} <button>like</button>
+                    likes {blog.likes}{' '}
+                    <button onClick={handleLikes}>like</button>
                 </p>
                 <p>{blog.author}</p>
             </div>

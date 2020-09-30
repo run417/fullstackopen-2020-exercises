@@ -12,12 +12,17 @@ const getAll = () => {
     return request.then((response) => response.data);
 };
 
-const create = async (blogObjectData) => {
+const create = async (blog) => {
     const config = {
         headers: { Authorization: bearerToken },
     };
-    const response = await axios.post(baseUrl, blogObjectData, config);
+    const response = await axios.post(baseUrl, blog, config);
     return response.data;
 };
 
-export default { getAll, create, setToken };
+const update = async (blog) => {
+    const response = await axios.put(`${baseUrl}/${blog.id}`, blog);
+    return response.data;
+};
+
+export default { getAll, create, update, setToken };
