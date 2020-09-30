@@ -25,4 +25,14 @@ const update = async (blog) => {
     return response.data;
 };
 
-export default { getAll, create, update, setToken };
+const remove = async (blog) => {
+    const config = {
+        headers: {
+            Authorization: bearerToken,
+        },
+    };
+    const response = await axios.delete(`${baseUrl}/${blog.id}`, config);
+    return response.data;
+};
+
+export default { getAll, create, update, remove, setToken };

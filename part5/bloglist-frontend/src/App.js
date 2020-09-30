@@ -81,6 +81,21 @@ const App = () => {
         }
     };
 
+    const deleteBlog = async (blog) => {
+        try {
+            await blogService.remove(blog);
+            const updatedCollection = blogs.filter((b) => b.id !== blog.id);
+            sortBlogs(updatedCollection);
+            setBlogs(updatedCollection);
+            notify({
+                message: `Removed blog ${blog.title} by ${blog.author}`,
+                type: 'success',
+            });
+        } catch (exception) {
+            console.log(exception);
+        }
+    };
+
     const handleLogin = async (credentials) => {
         try {
             const user = await loginService.login(credentials);
@@ -111,6 +126,8 @@ const App = () => {
                     key={blog.id}
                     blog={blog}
                     updateBlogLikes={updateBlogLikes}
+                    deleteBlog={deleteBlog}
+                    loggedInUser={user}
                 />
             ))}
         </div>
