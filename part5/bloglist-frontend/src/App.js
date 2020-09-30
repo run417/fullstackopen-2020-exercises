@@ -15,8 +15,22 @@ const App = () => {
 
     const blogFormRef = useRef();
 
+    const sortBlogs = (blogs) => {
+        blogs.sort((a, b) => {
+            if (a.likes === b.likes) return 0;
+            if (a.likes > b.likes) return -1;
+            return 1;
+        });
+    };
+
     useEffect(() => {
-        blogService.getAll().then((blogs) => setBlogs(blogs));
+        const fetchBlogs = async () => {
+            const blogs = await blogService.getAll();
+            sortBlogs(blogs);
+            setBlogs(blogs);
+            console.log(blogs);
+        };
+        fetchBlogs();
     }, []);
 
     useEffect(() => {
@@ -52,12 +66,12 @@ const App = () => {
     const updateBlogLikes = async (blogObject) => {
         try {
             const updatedBlog = await blogService.update(blogObject);
-            updatedBlog.user = blogObject.user;
-            setBlogs(
-                blogs.map((blog) =>
-                    blog.id === updatedBlog.id ? updatedBlog : blog
-                )
+            const updatedCollection = blogs.map((blog) =>
+                blog.id === updatedBlog.id ? updatedBlog : blog
             );
+            console.log(updatedCollection);
+            sortBlogs(updatedCollection);
+            setBlogs(updatedCollection);
             notify({
                 message: `${user.name} liked ${updatedBlog.title}`,
                 type: 'success',
