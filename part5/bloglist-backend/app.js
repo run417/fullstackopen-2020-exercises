@@ -18,6 +18,7 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
+        useCreateIndex: true,
     })
     .then((result) => logger.info('connected to mongoDb:', result.connection.name))
     .catch((error) => console.log(error.message));
