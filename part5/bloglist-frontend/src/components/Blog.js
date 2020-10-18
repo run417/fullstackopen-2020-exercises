@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import BlogForm from './BlogForm';
 
 const Blog = ({ blog, loggedInUser, updateBlogLikes, deleteBlog }) => {
     const [visible, setVisible] = useState(false);
@@ -35,14 +34,14 @@ const Blog = ({ blog, loggedInUser, updateBlogLikes, deleteBlog }) => {
     const hideWhenVisible = { display: visible ? 'none' : '' };
     const showWhenVisible = { display: visible ? '' : 'none' };
     return (
-        <div style={blogStyle}>
+        <div className="blog" style={blogStyle}>
             <div style={hideWhenVisible}>
-                <p>
+                <p className="blogListView">
                     {blog.title} - {blog.author}{' '}
                     <button onClick={toggleVisibility}>view</button>
                 </p>
             </div>
-            <div style={showWhenVisible}>
+            <div className="blogDetails" style={showWhenVisible}>
                 <p>
                     {blog.title} - {blog.author}{' '}
                     <button onClick={toggleVisibility}>hide</button>
