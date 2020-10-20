@@ -28,5 +28,7 @@ test('renders blog list view', () => {
     const blogListView = component.container.querySelector('.blogListView');
     const blogDetails = component.container.querySelector('.blogDetails');
     expect(blogListView).toHaveTextContent(blogListDataRegex);
+    expect(blogListView).not.toHaveTextContent(blog.url);
+    expect(blogListView).not.toHaveTextContent(blog.likes);
     expect(blogDetails).toHaveStyle('display: none');
 });
