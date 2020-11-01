@@ -8,14 +8,14 @@ body {
 
 .error-notification {
     padding: 5px;
-    color: hsl(0, 100%, 25%);
+    color: rgb(128, 0, 0);
     border: 2px solid hsl(0, 100%, 25%);
     background-color: silver;
 }
 
 .success-notification {
     padding: 5px;
-    color: hsl(133, 100%, 25%);
+    color: rgb(0, 128, 28);
     border: 2px solid hsla(133, 100%, 25%);
     background-color: silver;
 }
