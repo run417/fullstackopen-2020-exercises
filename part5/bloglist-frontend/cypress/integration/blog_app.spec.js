@@ -1,3 +1,13 @@
+Cypress.Commands.add('login', ({ username, password }) => {
+    cy.request('POST', 'http://localhost:3003/api/login', {
+        username,
+        password,
+    }).then((response) => {
+        localStorage.setItem('loggedBlogUser', JSON.stringify(response.body));
+        cy.visit('http://localhost:3000');
+    });
+});
+
 describe('Blog app', function () {
     beforeEach(function () {
         cy.request('POST', 'http://localhost:3003/api/testing/reset');
@@ -27,6 +37,22 @@ describe('Blog app', function () {
                 'color',
                 'rgb(128, 0, 0)'
             );
+        });
+
+        describe('when logged in', function () {
+            beforeEach(function () {
+                cy.login({ username: 'vinura', password: 'secret' });
+            });
+
+            it('a new blog can be created', function () {
+                cy.contains('new blog').click();
+                cy.get('input[name=title]').type('cypress blog title');
+                cy.get('input[name=author]').type('exos');
+                cy.get('input[name=url]').type('example.com');
+                cy.get('button').contains('create').click();
+                cy.contains('a new blog cypress blog title added');
+                cy.get('.blogList').contains('cypress blog title');
+            });
         });
     });
 });

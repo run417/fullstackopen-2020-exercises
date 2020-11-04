@@ -119,7 +119,7 @@ const App = () => {
     };
 
     const blogList = () => (
-        <div>
+        <div className="blogList">
             <h2>list</h2>
             {blogs.map((blog) => (
                 <Blog
