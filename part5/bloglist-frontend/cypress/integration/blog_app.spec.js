@@ -95,13 +95,42 @@ describe('Blog app', function () {
             cy.login({ username: 'vinura', password: 'secret' });
         });
 
-        it.only('user can like blog', function () {
+        it('user can like blog', function () {
             cy.contains('new blog as different user')
                 .contains('button', 'view')
                 .click();
             cy.contains('likes').should('contain', '0');
             cy.contains('button', 'like').click();
             cy.contains('likes').should('contain', '1');
+        });
+    });
+
+    describe('deleting blogs', function () {
+        beforeEach(function () {
+            cy.createBlogAsUser({
+                title: 'new blog as different user',
+                author: 'cypress',
+                url: 'example.com',
+                username: 'exos',
+                password: 'secret2',
+            });
+        });
+
+        it('can be deleted by creator', function () {
+            cy.login({ username: 'exos', password: 'secret2' });
+            cy.contains('new blog as different user')
+                .contains('button', 'view')
+                .click();
+            cy.contains('button', 'remove').click();
+            cy.contains('Removed blog');
+        });
+
+        it('cannot be deleted by another user', function () {
+            cy.login({ username: 'vinura', password: 'secret' });
+            cy.contains('new blog as different user')
+                .contains('button', 'view')
+                .click();
+            cy.contains('html').should('not.contain', 'remove');
         });
     });
 });
