@@ -8,9 +8,10 @@ Cypress.Commands.add('login', ({ username, password }) => {
     });
 });
 
+// a bit slower b/c of logging in before each blog creation
 Cypress.Commands.add(
     'createBlogAsUser',
-    ({ title, author, url, username, password }) => {
+    ({ title, author, url, likes, username, password }) => {
         let token = null;
         cy.request('POST', 'http://localhost:3003/api/login', {
             username,
@@ -20,7 +21,7 @@ Cypress.Commands.add(
             cy.request({
                 url: 'http://localhost:3003/api/blogs',
                 method: 'POST',
-                body: { title, author, url },
+                body: { title, author, url, likes },
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -82,12 +83,13 @@ describe('Blog app', function () {
         });
     });
 
-    describe('Existing blogs', function () {
+    describe('Existing blog', function () {
         beforeEach(function () {
             cy.createBlogAsUser({
                 title: 'new blog as different user',
                 author: 'cypress',
                 url: 'example.com',
+                likes: 0, // explicitly setting likes
                 username: 'exos',
                 password: 'secret2',
             });
@@ -95,6 +97,7 @@ describe('Blog app', function () {
             cy.login({ username: 'vinura', password: 'secret' });
         });
 
+        // user who created blog can like own blog too but testing the functionlity w/ different user
         it('user can like blog', function () {
             cy.contains('new blog as different user')
                 .contains('button', 'view')
@@ -105,7 +108,55 @@ describe('Blog app', function () {
         });
     });
 
-    describe('deleting blogs', function () {
+    describe('Multiple existing blogs', function () {
+        beforeEach(function () {
+            cy.createBlogAsUser({
+                title: 'first blog',
+                likes: 33,
+                author: 'cypress',
+                url: 'example.com',
+                username: 'exos',
+                password: 'secret2',
+            });
+            cy.createBlogAsUser({
+                title: 'second blog',
+                likes: 33,
+                author: 'cypress',
+                url: 'example.com',
+                username: 'vinura',
+                password: 'secret',
+            });
+            cy.createBlogAsUser({
+                title: 'third blog',
+                likes: 39,
+                author: 'cypress',
+                url: 'example.com',
+                username: 'exos',
+                password: 'secret2',
+            });
+            cy.login({ username: 'vinura', password: 'secret' });
+        });
+
+        it('blogs are arranged according to like count', function () {
+            // Expand blog to view like count
+            cy.get('.blog').each((blogelement) => {
+                cy.wrap(blogelement).contains('button', 'view').click();
+            });
+
+            // get like count of each blog,
+            // compare it to next blog like count
+            cy.get('.likeCount').each((jElement, index, elementArray) => {
+                // skip if jElement is the last in array
+                if (elementArray[index + 1] !== undefined) {
+                    expect(parseInt(jElement.text())).to.be.at.least(
+                        parseInt(Cypress.$(elementArray[index + 1]).text()) // convert to Jquery for uniformity
+                    );
+                }
+            });
+        });
+    });
+
+    describe('Deleting blogs', function () {
         beforeEach(function () {
             cy.createBlogAsUser({
                 title: 'new blog as different user',
@@ -125,6 +176,7 @@ describe('Blog app', function () {
             cy.contains('Removed blog');
         });
 
+        // tests for the availability of the remove button
         it('cannot be deleted by another user', function () {
             cy.login({ username: 'vinura', password: 'secret' });
             cy.contains('new blog as different user')
