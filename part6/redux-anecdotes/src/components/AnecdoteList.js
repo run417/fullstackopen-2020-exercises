@@ -4,10 +4,15 @@ import { voteFor } from "../reducers/anecdoteReducer";
 import { setNotification } from "../reducers/notificationReducer";
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector(
-    (state) => state.anecdotes.sort((a, b) => b.votes - a.votes)
+  const anecdotes = useSelector((state) => {
+    const anecdotes = state.anecdotes;
     // if negative a is sorted before b, if positive b is sorted before a
-  );
+    const compareFunc = (a, b) => b.votes - a.votes;
+    if (state.filter === "") return anecdotes.sort(compareFunc);
+    return anecdotes
+      .filter((a) => (a.content.search(state.filter) > 0 ? a : ""))
+      .sort(compareFunc);
+  });
   const dispatch = useDispatch();
 
   const vote = (id) => {
