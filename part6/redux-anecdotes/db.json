@@ -34,6 +34,11 @@
       "content": "new anecdote",
       "votes": 0,
       "id": "j6TBYRt"
+    },
+    {
+      "content": "new anecdote from redux",
+      "votes": 0,
+      "id": "KtXjEs6"
     }
   ]
 }
