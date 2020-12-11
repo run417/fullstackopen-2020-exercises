@@ -18,9 +18,9 @@ const AnecdoteList = () => {
     dispatch(initializeAnecdotes());
   }, [dispatch]);
 
-  const vote = (id) => {
-    console.log("vote", id);
-    dispatch(voteFor(id));
+  const vote = (anecdote) => {
+    console.log("vote", anecdote.id);
+    dispatch(voteFor(anecdote));
   };
 
   const notify = (anecdote) => {
@@ -31,7 +31,7 @@ const AnecdoteList = () => {
 
   const voteAndNotify = (anecdote) => {
     console.log("voteandnotify", anecdote);
-    vote(anecdote.id);
+    vote(anecdote);
     notify(anecdote.content);
   };
   return (

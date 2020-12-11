@@ -30,9 +30,7 @@ const reducer = (state = initialState, action) => {
     case "INIT_ANECDOTES":
       return action.data;
     case "VOTE":
-      return state.map((a) =>
-        a.id === action.data.id ? { ...a, votes: a.votes + 1 } : a
-      );
+      return state.map((a) => (a.id === action.data.id ? action.data : a));
     default:
       return state;
   }
@@ -55,10 +53,13 @@ export const createAnecdote = (anecdote) => {
   };
 };
 
-export const voteFor = (id) => {
-  return {
-    type: "VOTE",
-    data: { id },
+export const voteFor = (anecdote) => {
+  return async (dispatch) => {
+    const updatedAnecdote = await anecdoteService.voteAnecdote(anecdote);
+    dispatch({
+      type: "VOTE",
+      data: updatedAnecdote,
+    });
   };
 };
 
