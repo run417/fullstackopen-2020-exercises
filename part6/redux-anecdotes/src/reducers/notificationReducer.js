@@ -9,16 +9,12 @@ const notificationReducer = (state = null, action) => {
   }
 };
 
-export const setNotification = (notification) => {
-  return {
-    type: "SET",
-    data: notification,
-  };
-};
-
-export const unSetNotification = () => {
-  return {
-    type: "UNSET",
+export const setNotification = (notification, timeout = 5) => {
+  return (dispatch) => {
+    dispatch({ type: "SET", data: notification });
+    setTimeout(() => {
+      dispatch({ type: "UNSET" });
+    }, timeout * 1000);
   };
 };
 

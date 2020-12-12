@@ -1,15 +1,8 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { unSetNotification } from "../reducers/notificationReducer";
+import { useSelector } from "react-redux";
 
 const Notification = () => {
-  const dispatch = useDispatch();
   const notification = useSelector((state) => state.notification);
-  if (notification) {
-    setTimeout(() => {
-      dispatch(unSetNotification());
-    }, 5000);
-  }
 
   const style = {
     border: "solid",

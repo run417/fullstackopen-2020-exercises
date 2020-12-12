@@ -26,7 +26,7 @@ const AnecdoteList = () => {
   const notify = (anecdote) => {
     console.log("notify", anecdote);
     const notification = `you voted '${anecdote}'`;
-    dispatch(setNotification(notification));
+    dispatch(setNotification(notification, 5));
   };
 
   const voteAndNotify = (anecdote) => {
