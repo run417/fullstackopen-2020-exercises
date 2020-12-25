@@ -1,32 +1,24 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { initializeAnecdotes, voteFor } from "../reducers/anecdoteReducer";
 import { setNotification } from "../reducers/notificationReducer";
 
-const AnecdoteList = () => {
-  const anecdotes = useSelector((state) => {
-    const anecdotes = state.anecdotes;
-    // if negative a is sorted before b, if positive b is sorted before a
-    const compareFunc = (a, b) => b.votes - a.votes;
-    if (state.filter === "") return anecdotes.sort(compareFunc);
-    return anecdotes
-      .filter((a) => (a.content.search(state.filter) > 0 ? a : ""))
-      .sort(compareFunc);
-  });
-  const dispatch = useDispatch();
+const AnecdoteList = (props) => {
+  const anecdotes = props.anecdotes;
+  const initializeAnecdotes = props.initializeAnecdotes;
   useEffect(() => {
-    dispatch(initializeAnecdotes());
-  }, [dispatch]);
+    initializeAnecdotes();
+  }, [initializeAnecdotes]);
 
   const vote = (anecdote) => {
     console.log("vote", anecdote.id);
-    dispatch(voteFor(anecdote));
+    props.voteFor(anecdote);
   };
 
   const notify = (anecdote) => {
     console.log("notify", anecdote);
     const notification = `you voted '${anecdote}'`;
-    dispatch(setNotification(notification, 5));
+    props.setNotification(notification, 5);
   };
 
   const voteAndNotify = (anecdote) => {
@@ -49,4 +41,23 @@ const AnecdoteList = () => {
   );
 };
 
-export default AnecdoteList;
+const mapStateToProps = (state) => {
+  console.log(state);
+  const anecdotes = state.anecdotes;
+  // if negative a is sorted before b, if positive b is sorted before a
+  const compareFunc = (a, b) => b.votes - a.votes;
+  if (state.filter === "") return { anecdotes: anecdotes.sort(compareFunc) };
+  return {
+    anecdotes: anecdotes
+      .filter((a) => (a.content.search(state.filter) > 0 ? a : ""))
+      .sort(compareFunc),
+  };
+};
+
+const mapDispatchToProps = {
+  initializeAnecdotes,
+  voteFor,
+  setNotification,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AnecdoteList);
