@@ -4,6 +4,7 @@ import { initializeAnecdotes, voteFor } from "../reducers/anecdoteReducer";
 import { setNotification } from "../reducers/notificationReducer";
 
 const AnecdoteList = (props) => {
+  console.log(props);
   const anecdotes = props.anecdotes;
   const initializeAnecdotes = props.initializeAnecdotes;
   useEffect(() => {
@@ -18,7 +19,10 @@ const AnecdoteList = (props) => {
   const notify = (anecdote) => {
     console.log("notify", anecdote);
     const notification = `you voted '${anecdote}'`;
-    props.setNotification(notification, 5);
+    props.setNotification(
+      { message: notification, timeOutId: props.notification.timeOutId },
+      5
+    );
   };
 
   const voteAndNotify = (anecdote) => {
@@ -43,14 +47,19 @@ const AnecdoteList = (props) => {
 
 const mapStateToProps = (state) => {
   console.log(state);
-  const anecdotes = state.anecdotes;
+  let anecdotes = state.anecdotes;
   // if negative a is sorted before b, if positive b is sorted before a
   const compareFunc = (a, b) => b.votes - a.votes;
-  if (state.filter === "") return { anecdotes: anecdotes.sort(compareFunc) };
+  if (state.filter === "")
+    return {
+      anecdotes: anecdotes.sort(compareFunc),
+      notification: state.notification,
+    };
   return {
     anecdotes: anecdotes
       .filter((a) => (a.content.search(state.filter) > 0 ? a : ""))
       .sort(compareFunc),
+    notification: state.notification,
   };
 };
 

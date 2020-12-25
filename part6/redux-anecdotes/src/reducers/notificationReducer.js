@@ -1,9 +1,12 @@
-const notificationReducer = (state = null, action) => {
+const notificationReducer = (
+  state = { message: undefined, timeOutId: undefined },
+  action
+) => {
   switch (action.type) {
     case "SET":
       return action.data;
     case "UNSET":
-      return null;
+      return { message: undefined, timeOutId: undefined };
     default:
       return state;
   }
@@ -11,10 +14,13 @@ const notificationReducer = (state = null, action) => {
 
 export const setNotification = (notification, timeout = 5) => {
   return (dispatch) => {
-    dispatch({ type: "SET", data: notification });
-    setTimeout(() => {
+    if (notification.timeOutId) {
+      clearTimeout(notification.timeOutId);
+    }
+    const timeOutId = setTimeout(() => {
       dispatch({ type: "UNSET" });
     }, timeout * 1000);
+    dispatch({ type: "SET", data: { ...notification, timeOutId } });
   };
 };
 
