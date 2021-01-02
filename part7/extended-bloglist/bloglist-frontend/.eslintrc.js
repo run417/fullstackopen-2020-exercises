@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
     env: {
         browser: true,
@@ -15,9 +16,9 @@ module.exports = {
     },
     plugins: ['react', 'jest', 'cypress', 'prettier'],
     rules: {
-        'prettier/prettier': 'error',
-        indent: ['error', 4],
-        'linebreak-style': ['error', 'unix'],
+        'prettier/prettier': ['error', { endOfLine: 'auto' }],
+        indent: 'off',
+        // 'linebreak-style': ['error', 'unix'],
         quotes: ['error', 'single'],
         semi: ['error', 'always'],
         eqeqeq: 'error',
@@ -26,5 +27,6 @@ module.exports = {
         'arrow-spacing': ['error', { before: true, after: true }],
         'no-console': 0,
         'react/prop-types': 0,
+        'no-unused-vars': 'warn',
     },
 };

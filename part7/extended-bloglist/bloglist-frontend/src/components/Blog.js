@@ -9,6 +9,7 @@ const Blog = ({ blog, loggedInUser, updateBlogLikes, deleteBlog }) => {
     };
 
     const handleLikes = () => {
+        console.log(blog);
         blog.likes += 1;
         updateBlogLikes(blog);
     };

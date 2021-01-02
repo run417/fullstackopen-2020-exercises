@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Blog from './components/Blog';
 import Notification from './components/Notification';
 import Toggleable from './components/Toggleable';
@@ -6,29 +6,41 @@ import BlogForm from './components/BlogForm';
 import LoginForm from './components/LoginForm';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
+import {
+    initializeBlogs,
+    saveBlog,
+    updateBlog,
+    deleteBlogFromState,
+} from './reducers/blogReducer';
+import {
+    removeNotification,
+    setNotification,
+} from './reducers/notificationReducer';
+import { removeUser, setUser } from './reducers/userReducer';
 
 const App = () => {
-    const [blogs, setBlogs] = useState([]);
-    const [user, setUser] = useState(null);
-    const [notification, setNotification] = useState(null);
+    const dispatch = useDispatch();
 
-    const blogFormRef = useRef();
-
-    const sortBlogs = (blogs) => {
+    const user = useSelector((state) => state.user);
+    const notification = useSelector((state) => state.notification);
+    const blogs = useSelector((state) => {
+        const blogs = state.blogs;
         blogs.sort((a, b) => {
             if (a.likes === b.likes) return 0;
             if (a.likes > b.likes) return -1;
             return 1;
         });
-    };
+        return blogs;
+    });
+
+    const blogFormRef = useRef();
 
     useEffect(() => {
         const fetchBlogs = async () => {
             const blogs = await blogService.getAll();
-            sortBlogs(blogs);
-            setBlogs(blogs);
-            console.log(blogs);
+            dispatch(initializeBlogs(blogs));
         };
         fetchBlogs();
     }, []);
@@ -39,39 +51,44 @@ const App = () => {
         );
         if (loggedBlogUserJson) {
             const user = JSON.parse(loggedBlogUserJson);
-            setUser(user);
+            dispatch(setUser(user));
             blogService.setToken(user.token);
         }
     }, []);
 
-    const notify = (notification) => {
-        setNotification(notification);
-        setTimeout(() => setNotification(null), 5000);
+    const notify = (messageAndType) => {
+        // clear existing timeout and replace it with a new one
+        if (notification !== null) {
+            clearTimeout(notification.timeoutId);
+        }
+        const timeoutId = setTimeout(() => {
+            dispatch(removeNotification());
+        }, 5000);
+        dispatch(setNotification({ ...messageAndType, timeoutId }));
     };
 
     const addBlog = async (blogObject) => {
         try {
             const savedBlog = await blogService.create(blogObject);
-            setBlogs(blogs.concat(savedBlog));
+            dispatch(saveBlog(savedBlog));
             notify({
                 message: `a new blog ${savedBlog.title} added`,
                 type: 'success',
             });
             blogFormRef.current.toggleVisibility();
         } catch (exception) {
+            console.log('exception occured', exception);
             notify({ message: exception.response.data.error, type: 'error' });
         }
     };
 
     const updateBlogLikes = async (blogObject) => {
         try {
+            // updated blog runs twice to increase responsiveness
+            dispatch(updateBlog(blogObject));
             const updatedBlog = await blogService.update(blogObject);
-            const updatedCollection = blogs.map((blog) =>
-                blog.id === updatedBlog.id ? updatedBlog : blog
-            );
-            console.log(updatedCollection);
-            sortBlogs(updatedCollection);
-            setBlogs(updatedCollection);
+            // redux state is updated the second time to reflect the actual update from server.
+            dispatch(updateBlog(updatedBlog));
             notify({
                 message: `${user.name} liked ${updatedBlog.title}`,
                 type: 'success',
@@ -84,9 +101,7 @@ const App = () => {
     const deleteBlog = async (blog) => {
         try {
             await blogService.remove(blog);
-            const updatedCollection = blogs.filter((b) => b.id !== blog.id);
-            sortBlogs(updatedCollection);
-            setBlogs(updatedCollection);
+            dispatch(deleteBlogFromState(blog));
             notify({
                 message: `Removed blog ${blog.title} by ${blog.author}`,
                 type: 'success',
@@ -100,7 +115,7 @@ const App = () => {
         try {
             const user = await loginService.login(credentials);
             window.localStorage.setItem('loggedBlogUser', JSON.stringify(user));
-            setUser(user);
+            dispatch(setUser(user));
             blogService.setToken(user.token);
             notify({ message: 'Login successful', type: 'success' });
         } catch (exception) {
@@ -110,7 +125,7 @@ const App = () => {
 
     const handleLogout = () => {
         window.localStorage.removeItem('loggedBlogUser');
-        setUser(null);
+        dispatch(removeUser());
         blogService.setToken(null);
     };
 
