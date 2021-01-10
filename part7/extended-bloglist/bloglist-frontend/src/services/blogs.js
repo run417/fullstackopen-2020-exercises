@@ -25,6 +25,18 @@ const update = async (blog) => {
     return response.data;
 };
 
+const updateComments = async (blogIdAndComment) => {
+    const config = {
+        headers: { Authorization: bearerToken },
+    };
+    const response = await axios.post(
+        `${baseUrl}/${blogIdAndComment.id}/comments`,
+        blogIdAndComment,
+        config
+    );
+    return response.data;
+};
+
 const remove = async (blog) => {
     const config = {
         headers: {
@@ -35,4 +47,4 @@ const remove = async (blog) => {
     return response.data;
 };
 
-export default { getAll, create, update, remove, setToken };
+export default { getAll, create, update, remove, updateComments, setToken };

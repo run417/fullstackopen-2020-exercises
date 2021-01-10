@@ -47,8 +47,29 @@ blogRouter.put('/:id', async (request, response) => {
         author: body.author,
         url: body.url,
         likes: body.likes,
+        comments: body.comments,
         user: body.user.id,
     };
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+        new: true,
+    }).populate('user', { username: 1, name: 1 });
+    response.json(updatedBlog);
+});
+
+blogRouter.post('/:id/comments', async (request, response) => {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken.id) {
+        // null token or no user id
+        response.status(401).json({ error: 'invalid or missing token' });
+    }
+
+    const blog = await Blog.findById(request.params.id);
+    const comment = request.body.comment;
+
+    if (comment.length > 256) return response.status(422).json({ error: 'comment too long' });
+    if (comment.length === 0) return response.status(422).json({ error: 'no empty comment' });
+
+    blog.comments = blog.comments.concat(comment);
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
         new: true,
     }).populate('user', { username: 1, name: 1 });

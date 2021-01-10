@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import Blog from './components/Blog';
+import React, { useEffect, useRef, useState } from 'react';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import BlogList from './components/BlogList';
 import Notification from './components/Notification';
 import Toggleable from './components/Toggleable';
 import BlogForm from './components/BlogForm';
 import LoginForm from './components/LoginForm';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import userService from './services/users';
 import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
 import {
@@ -19,10 +21,12 @@ import {
     setNotification,
 } from './reducers/notificationReducer';
 import { removeUser, setUser } from './reducers/userReducer';
+import UserList from './components/UserList';
 
 const App = () => {
-    const dispatch = useDispatch();
+    const [userList, setUserList] = useState([]);
 
+    const dispatch = useDispatch();
     const user = useSelector((state) => state.user);
     const notification = useSelector((state) => state.notification);
     const blogs = useSelector((state) => {
@@ -36,7 +40,12 @@ const App = () => {
     });
 
     const blogFormRef = useRef();
-
+    useEffect(() => {
+        (async () => {
+            const users = await userService.getAll();
+            setUserList(users);
+        })();
+    }, [blogs]);
     useEffect(() => {
         const fetchBlogs = async () => {
             const blogs = await blogService.getAll();
@@ -111,6 +120,22 @@ const App = () => {
         }
     };
 
+    const addComment = async (blogIdAndComment) => {
+        try {
+            const updatedBlog = await blogService.updateComments(
+                blogIdAndComment
+            );
+            dispatch(updateBlog(updatedBlog));
+            notify({
+                message: `Added new comment by ${user.name}`,
+                type: 'success',
+            });
+        } catch (expection) {
+            console.log(expection);
+            notify({ message: expection.response.data.error, type: 'error' });
+        }
+    };
+
     const handleLogin = async (credentials) => {
         try {
             const user = await loginService.login(credentials);
@@ -130,23 +155,13 @@ const App = () => {
     };
 
     const loginForm = () => {
-        return <LoginForm logInUser={handleLogin} />;
+        return (
+            <div>
+                <Notification notification={notification} />
+                <LoginForm logInUser={handleLogin} />
+            </div>
+        );
     };
-
-    const blogList = () => (
-        <div className="blogList">
-            <h2>list</h2>
-            {blogs.map((blog) => (
-                <Blog
-                    key={blog.id}
-                    blog={blog}
-                    updateBlogLikes={updateBlogLikes}
-                    deleteBlog={deleteBlog}
-                    loggedInUser={user}
-                />
-            ))}
-        </div>
-    );
 
     const newBlogForm = () => (
         <Toggleable buttonLabel="new blog" ref={blogFormRef}>
@@ -156,18 +171,41 @@ const App = () => {
 
     return (
         <div>
-            <Notification notification={notification} />
             {user === null ? (
                 loginForm()
             ) : (
                 <div>
-                    <h2>blogs</h2>
-                    <p>
-                        {user.name} is logged in{' '}
-                        <button onClick={handleLogout}>logout</button>
-                    </p>
-                    {newBlogForm()}
-                    {blogList()}
+                    <Router>
+                        <div>
+                            <Link to="/">blogs </Link>
+                            <Link to="/users">users </Link>
+                            <span>
+                                {user.name} is logged in{' '}
+                                <button onClick={handleLogout}>logout</button>
+                            </span>
+                        </div>
+                        <h2>blog app</h2>
+                        <Notification notification={notification} />
+                        <Switch>
+                            <Route path="/users">
+                                <UserList
+                                    users={userList}
+                                    handleLikes={updateBlogLikes}
+                                    handleDelete={deleteBlog}
+                                    handleComment={addComment}
+                                />
+                            </Route>
+                            <Route path="/">
+                                {newBlogForm()}
+                                <BlogList
+                                    blogs={blogs}
+                                    handleLikes={updateBlogLikes}
+                                    handleDelete={deleteBlog}
+                                    handleComment={addComment}
+                                />
+                            </Route>
+                        </Switch>
+                    </Router>
                 </div>
             )}
         </div>
