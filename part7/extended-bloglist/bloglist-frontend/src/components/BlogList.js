@@ -1,3 +1,12 @@
+import {
+    Table,
+    TableContainer,
+    TableBody,
+    TableRow,
+    TableCell,
+    Paper,
+    Typography,
+} from '@material-ui/core';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, Switch, useRouteMatch } from 'react-router-dom';
@@ -9,13 +18,7 @@ const BlogList = ({ blogs, handleLikes, handleDelete, handleComment }) => {
     const blog = match
         ? blogs.find((blog) => blog.id === match.params.id)
         : null;
-    const blogStyle = {
-        paddingTop: 10,
-        paddingLeft: 2,
-        border: 'solid',
-        borderWidth: 1,
-        marginBottom: 5,
-    };
+
     return (
         <Switch>
             <Route path="/blogs/:d">
@@ -29,14 +32,27 @@ const BlogList = ({ blogs, handleLikes, handleDelete, handleComment }) => {
             </Route>
             <Route path="/">
                 <div className="blogList">
-                    <h2>list</h2>
-                    {blogs.map((blog) => (
-                        <div style={blogStyle} key={blog.id}>
-                            <Link to={`/blogs/${blog.id}`}>
-                                {blog.title} {blog.author}
-                            </Link>
-                        </div>
-                    ))}
+                    <Typography variant="h4" gutterBottom>
+                        Blog List
+                    </Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableBody>
+                                {blogs.map((blog) => (
+                                    <TableRow key={blog.id}>
+                                        <TableCell>
+                                            <Link
+                                                className="blog"
+                                                to={`/blogs/${blog.id}`}
+                                            >
+                                                {blog.title} {blog.author}
+                                            </Link>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </div>
             </Route>
         </Switch>

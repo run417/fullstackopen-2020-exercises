@@ -1,5 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+    Typography,
+    Button,
+    TextField,
+    Divider,
+    Toolbar,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 const Blog = ({
     blog,
@@ -31,28 +39,67 @@ const Blog = ({
         }
     };
 
+    const useStyles = makeStyles((theme) => ({
+        root: {
+            '& > *': {
+                margin: theme.spacing(1),
+                width: '25ch',
+            },
+        },
+    }));
+    const classes = useStyles();
+
     return (
         <div className="blog">
-            <h2>
+            <Typography variant="h5">
                 {blog.title} - {blog.author}{' '}
-            </h2>
-            <p>{blog.url}</p>
-            <p>
+            </Typography>
+            <Typography>
+                {blog.url}
+                <br></br>
                 likes <span className="likeCount">{blog.likes}</span>{' '}
-                <button onClick={handleLikes}>like</button>
-            </p>
-            <p>{blog.author}</p>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                    onClick={handleLikes}
+                >
+                    like
+                </Button>
+                <br></br>
+                {blog.author}
+            </Typography>
             {loggedInUser !== null &&
             loggedInUser.username === blog.user.username ? (
-                <button onClick={handleDelete}>remove</button>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    onClick={handleDelete}
+                >
+                    remove
+                </Button>
             ) : (
                 ''
             )}
+            <Toolbar />
+            <Divider />
             <div className="comments">
-                <h3>comments</h3>
-                <form onSubmit={handleComment}>
-                    <input type="text" name="comment" />
-                    <button type="submit">add comment</button>
+                <form className={classes.root} onSubmit={handleComment}>
+                    <TextField
+                        variant="outlined"
+                        label="Comment"
+                        name="comment"
+                        size="small"
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        type="submit"
+                    >
+                        add comment
+                    </Button>
                 </form>
                 <ul>
                     {blog.comments.map((comment, index) => (

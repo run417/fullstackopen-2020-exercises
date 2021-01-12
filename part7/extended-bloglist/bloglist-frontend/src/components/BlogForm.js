@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Button, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 const BlogForm = ({ addBlog }) => {
     const [title, setTitle] = useState('');
@@ -12,38 +14,58 @@ const BlogForm = ({ addBlog }) => {
         setAuthor('');
         setUrl('');
     };
+
+    const useStyles = makeStyles((theme) => ({
+        root: {
+            '& > *': {
+                margin: theme.spacing(1),
+                width: '25ch',
+            },
+        },
+    }));
+    const classes = useStyles();
     return (
         <div>
-            <h2>create new</h2>
-            <form onSubmit={saveBlog}>
+            <Typography variant="h4">create new</Typography>
+            <form className={classes.root} onSubmit={saveBlog}>
                 <div>
-                    title:
-                    <input
-                        type="text"
+                    <TextField
                         name="title"
                         value={title}
                         onChange={({ target }) => setTitle(target.value)}
+                        label="title"
+                        variant="outlined"
+                        size="small"
                     />
                 </div>
+                <TextField
+                    name="author"
+                    value={author}
+                    onChange={({ target }) => setAuthor(target.value)}
+                    label="author"
+                    variant="outlined"
+                    size="small"
+                />
+
                 <div>
-                    author:
-                    <input
-                        type="text"
-                        name="author"
-                        value={author}
-                        onChange={({ target }) => setAuthor(target.value)}
-                    />
-                </div>
-                <div>
-                    url:
-                    <input
-                        type="text"
+                    <TextField
                         name="url"
                         value={url}
                         onChange={({ target }) => setUrl(target.value)}
+                        label="url"
+                        variant="outlined"
+                        size="small"
                     />
                 </div>
-                <button type="submit">create</button>
+
+                <Button
+                    type="submit"
+                    variant="contained"
+                    size="small"
+                    color="primary"
+                >
+                    create
+                </Button>
             </form>
         </div>
     );

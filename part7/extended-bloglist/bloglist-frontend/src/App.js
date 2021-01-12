@@ -22,6 +22,21 @@ import {
 } from './reducers/notificationReducer';
 import { removeUser, setUser } from './reducers/userReducer';
 import UserList from './components/UserList';
+import {
+    Container,
+    AppBar,
+    Toolbar,
+    Typography,
+    Button,
+    Grid,
+    Drawer,
+    List,
+    ListItem,
+    ListItemText,
+    Divider,
+    CssBaseline,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 const App = () => {
     const [userList, setUserList] = useState([]);
@@ -169,44 +184,116 @@ const App = () => {
         </Toggleable>
     );
 
+    const drawerWidth = 200;
+
+    const useStyles = makeStyles((theme) => {
+        console.log(theme);
+        return {
+            root: {
+                display: 'flex',
+            },
+            appBar: {
+                zIndex: theme.zIndex.drawer + 1,
+            },
+            drawer: {
+                width: drawerWidth,
+                flexShrink: 0,
+            },
+            drawerPaper: {
+                width: drawerWidth,
+            },
+            drawerContainer: {
+                overflow: 'auto',
+            },
+            content: {
+                flexGrow: 1,
+                padding: theme.spacing(2),
+            },
+        };
+    });
+    const classes = useStyles();
+
     return (
         <div>
             {user === null ? (
                 loginForm()
             ) : (
-                <div>
-                    <Router>
-                        <div>
-                            <Link to="/">blogs </Link>
-                            <Link to="/users">users </Link>
-                            <span>
-                                {user.name} is logged in{' '}
-                                <button onClick={handleLogout}>logout</button>
-                            </span>
+                <Router>
+                    <div className={classes.root}>
+                        <AppBar position="fixed" className={classes.appBar}>
+                            <Toolbar>
+                                <Grid container spacing={1}>
+                                    <Grid item xs={6}>
+                                        <Typography variant="h5">
+                                            Blog App
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography align="right">
+                                            {user.name} is logged in{' '}
+                                            <Button
+                                                color="inherit"
+                                                component="button"
+                                                onClick={handleLogout}
+                                            >
+                                                logout
+                                            </Button>
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </Toolbar>
+                        </AppBar>
+
+                        <Drawer
+                            className={classes.drawer}
+                            variant="permanent"
+                            classes={{
+                                paper: classes.drawerPaper,
+                            }}
+                        >
+                            <Toolbar />
+                            <div className={classes.drawerContainer}>
+                                <List>
+                                    <ListItem button>
+                                        <Link to="/">
+                                            <ListItemText primary="Blogs" />
+                                        </Link>
+                                    </ListItem>
+                                    <ListItem button>
+                                        <Link to="/users">
+                                            <ListItemText primary="Users" />
+                                        </Link>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </div>
+                        </Drawer>
+                        <div className={classes.content}>
+                            <Toolbar />
+                            <Notification notification={notification} />
+                            <Switch>
+                                <Route path="/users">
+                                    <UserList
+                                        users={userList}
+                                        handleLikes={updateBlogLikes}
+                                        handleDelete={deleteBlog}
+                                        handleComment={addComment}
+                                    />
+                                </Route>
+                                <Route path="/">
+                                    {newBlogForm()}
+                                    <Toolbar variant="dense" />
+                                    <BlogList
+                                        blogs={blogs}
+                                        handleLikes={updateBlogLikes}
+                                        handleDelete={deleteBlog}
+                                        handleComment={addComment}
+                                    />
+                                </Route>
+                            </Switch>
                         </div>
-                        <h2>blog app</h2>
-                        <Notification notification={notification} />
-                        <Switch>
-                            <Route path="/users">
-                                <UserList
-                                    users={userList}
-                                    handleLikes={updateBlogLikes}
-                                    handleDelete={deleteBlog}
-                                    handleComment={addComment}
-                                />
-                            </Route>
-                            <Route path="/">
-                                {newBlogForm()}
-                                <BlogList
-                                    blogs={blogs}
-                                    handleLikes={updateBlogLikes}
-                                    handleDelete={deleteBlog}
-                                    handleComment={addComment}
-                                />
-                            </Route>
-                        </Switch>
-                    </Router>
-                </div>
+                    </div>
+                </Router>
             )}
         </div>
     );
